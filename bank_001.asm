@@ -5,9 +5,11 @@
 SECTION "ROM Bank $001", ROMX[$4000], BANK[$1]
 
 INCBIN "data/bank1StartData.bin"
-TitleScreenTilemap::
-INCBIN "data/title_screen_tilemap.bin"
 
+TitleScreenTilemap::
+    INCBIN "data/title_screen_tilemap.bin"
+
+;bottom tilemap data(text)
 db "TOP SCORE"
 db $99,$C3,$0E
 db "PUSH START KEY"
@@ -15,6 +17,7 @@ db $9A,$04,$0C
 db "©1989 "
 db $18,$19,$1A,$1B,$1C,$1D ;Nintendo (tilemap)
 db $00,$98,$43,$0A
+;end tilemap data?
 db "NICE PLAY!"
 db $98,$84,$07,$44,$45,$FF,$FF,$FF,$44
 db $45,$98,$A3,$09,$44,$46,$20,$21,$22,$23,$24,$44,$45,$98,$C2,$0B
@@ -421,17 +424,17 @@ Func4603:
     ldh [$9d], a
     ld a, $e4
     call Call_000_08ca
-    ld de, $4a3c
+    ld de, UnknownData4a3c
     call Call_000_02c1
     ldh a, [$a4]
     cp $03
     jr z, jr_001_4660
 
-    ld a, [$ca46]
+    ld a, [wCurrentStage]
     cp $00
     jr z, jr_001_4660
 
-    ld a, [$ca45]
+    ld a, [wCA45]
     cp $00
     jr nz, jr_001_4660
 
@@ -492,7 +495,7 @@ Func4669:
     ld [$c892], a
     ld a, $3e
     ld [$c896], a
-    ld a, [$ca46]
+    ld a, [wCurrentStage]
     call Call_000_047c
     push af
     ld a, b
@@ -582,7 +585,7 @@ Func47a1:
     ld [hl+], a
     ld a, $02
     ld [hl+], a
-    ld a, [$ca46]
+    ld a, [wCurrentStage]
     call Call_000_047c
     push af
     ld a, b
@@ -606,7 +609,7 @@ Func47c7:
     ld [hl+], a
     ld a, $01
     ld [hl+], a
-    ld a, [$ca44]
+    ld a, [wLives]
     add $80
     ld [hl+], a
     xor a
@@ -977,11 +980,13 @@ jr_001_4a1b:
 
 ;is this function used for waiting a few cycles?
 Func4a29:
-    ret
+    ret ;wait 4 cycles
 
 ;unknown data at 4a2a
 db $21,$10,$C8,$3E,$98,$22,$3E,$10,$22,$F0,$BE,$C6,$80,$22,$3E,$00
-db $22,$C9,$9C,$00,$01,$BE,$9C,$20,$D8,$B4,$98,$00,$01,$BD,$98,$01
+db $22,$C9
+UnknownData4a3c::
+db $9C,$00,$01,$BE,$9C,$20,$D8,$B4,$98,$00,$01,$BD,$98,$01
 db $54,$B5,$9C,$21,$03,$9D,$98,$99,$9C,$81,$04,$B8,$B9,$BA,$BB,$9D
 db $41,$04,$C0,$C1,$C2,$C3,$9E,$02,$02,$B1,$B2,$00
 
@@ -989,7 +994,7 @@ Call_001_4a66:
     sla a
     ld e, a
     ld d, $00
-    ld hl, $4a8b
+    ld hl, UnknownData4a8b
     add hl, de
     ld d, [hl]
     inc hl
@@ -1017,6 +1022,7 @@ jr_001_4a77:
     jr nz, jr_001_4a77
     ret
 ;data offset 4a8b
+UnknownData4a8b::
 db $4A,$A5,$4A,$B5,$4A,$C5,$4A,$D5,$4A,$E5,$4A,$F5,$4B,$05,$4B,$15
 db $4B,$25,$4B,$35,$4B,$45,$4B,$55,$4B,$65,$00,$00,$06,$80,$00,$08
 db $07,$80,$08,$00,$08,$80,$08,$08,$09,$80,$00,$00,$0A,$80,$00,$08
@@ -1034,6 +1040,7 @@ db $22,$00,$08,$00,$23,$00,$08,$08,$24,$00,$00,$00,$21,$00,$00,$08
 db $22,$00,$08,$00,$25,$00,$08,$08,$26,$00
 
 ;start of paddle graphics/others
+;4b75
 PaddleGraphics::
     INCBIN "gfx/paddle.2bpp"
 
@@ -1140,7 +1147,7 @@ Func638d:
     ld b, a
     ld e, $06
     call Call_000_0454
-    ld hl, $1b87
+    ld hl, UnknownData1b87
     add hl, bc
     ld b, $00
     ld c, $05
@@ -4456,7 +4463,8 @@ Call_001_752c:
     xor a
     ld [$dff4], a
     ret
-
+;part of this is sound data (music and sfx)
+;changing this data seems to only affect sound
 db $00, $c0, $80, $80, $81, $81, $81, $82, $82, $82, $83, $83, $83, $83, $84, $84
 db $84, $84, $84, $85, $85, $85, $85, $85, $85, $85, $86, $86, $86, $86, $86, $86
 db $86, $86, $86, $86, $86, $86, $87, $87, $87, $87, $87, $87, $87, $87, $87, $87

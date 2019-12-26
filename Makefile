@@ -6,7 +6,7 @@
 .SECONDARY:
 
 ROM := alleyway.gb
-OBJS := main.o
+OBJS := main.o wram.o
 MD5 := md5sum -c
 
 all: $(ROM)

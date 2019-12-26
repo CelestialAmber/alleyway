@@ -17,46 +17,49 @@ Start:
     ld c, $1f
     xor a
     ld b, $00
-jr_000_0168:
+;zero out vram
+.loopVram
     ld [hl-], a
     dec b
-    jr nz, jr_000_0168
+    jr nz, .loopVram
     dec c
-    jr nz, jr_000_0168
+    jr nz, .loopVram
     ld hl, $dfff
     ld c, $3f
     xor a
     ld b, $00
-jr_000_0177:
+;zero out ram
+.loopRam
     ld [hl-], a
     dec b
-    jr nz, jr_000_0177
+    jr nz, .loopRam
     dec c
-    jr nz, jr_000_0177
+    jr nz, .loopRam
     ld hl, $fffe
     ld b, $7f
-jr_000_0183:
+    ;zero out
+.loopHRam
     ld [hl-], a
     dec b
-    jr nz, jr_000_0183
+    jr nz, .loopHRam
     ld hl, $feff
     ld b, $ff
-jr_000_018c:
+.loop2:
     ld [hl-], a
     dec b
-    jr nz, jr_000_018c
+    jr nz, .loop2
     call Call_000_0381
     call Call_000_0358
     call Call_000_035d
     ld c, $80
     ld b, $0c
     ld hl, $03b5
-jr_000_01a0:
+.loop3
     ld a, [hl+]
     ld [c], a
     inc c
     dec b
-    jr nz, jr_000_01a0
+    jr nz, .loop3
     ld a, $01
     ldh [rIF], a
     ldh [$9d], a
@@ -516,7 +519,7 @@ jr_000_03ac:
     ret
 
 ;code used at ff80 (oam dma code)
-OAMDmaCode:
+OAMDmaCode::
     di
     ld a, $c8
     ldh [rDMA], a
@@ -562,7 +565,7 @@ PollInput:
     ld a, $30
     ldh [rP1], a
     ld b, $08
-    ldh a, [$8e]
+    ldh a, [hJoyInput]
     ld c, a
     ldh a, [$8c]
 
@@ -580,7 +583,7 @@ jr_000_040d:
 
     ldh [$8d], a
     ld a, c
-    ldh [$8e], a
+    ldh [hJoyInput], a
     ret
 
 
@@ -922,7 +925,7 @@ jr_000_05b6:
 
 jr_000_05cd:
     call Call_000_0221
-    ldh a, [$a2]
+    ldh a, [$ffa2]
     cp $00
     jr nz, jr_000_05df
 
@@ -932,24 +935,24 @@ jr_000_05cd:
     jr z, jr_000_060e
 
 jr_000_05df:
-    ldh a, [$8d]
+    ldh a, [$ff8d]
     and $08
     jr z, jr_000_05eb
 
-    ldh a, [$93]
+    ldh a, [$ff93]
     and $80
     jr nz, jr_000_05cd
 
 jr_000_05eb:
     xor a
-    ld [$ca45], a
-    ld [$ca46], a
-    ld [$ca47], a
-    ldh [$a5], a
-    ldh [$ca], a
-    ldh [$cb], a
+    ld [wCA45], a
+    ld [wCurrentStage], a
+    ld [wCA47], a
+    ldh [$ffa5], a
+    ldh [$ffca], a
+    ldh [$ffcb], a
     ld a, $04
-    ld [$ca44], a
+    ld [wLives], a
     call Call_000_0c8f
     call Func6382
     call Func4603
@@ -970,22 +973,22 @@ jr_000_060e:
 jr_000_0619:
     call Call_000_0505
     and $1f
-    ld [$ca45], a
+    ld [wCA45], a
     ld b, a
     ld e, $03
     call Call_000_0454
-    ld hl, $1be1
+    ld hl, UnknownData1be1
     add hl, bc
     ld a, [hl]
     bit 7, a
     jr nz, jr_000_0619
 
     ld a, $ff
-    ld [$ca46], a
+    ld [wCurrentStage], a
     inc a
     ldh [$ca], a
     ldh [$cb], a
-    ld [$ca44], a
+    ld [wLives], a
     call Call_000_06a2
     ld a, $0a
     ld [$ca49], a
@@ -1052,11 +1055,11 @@ Call_000_06a2:
     ldh [$c1], a
     ld a, $18
     ldh [$c2], a
-    ld a, [$ca45]
+    ld a, [wCA45]
     ld b, a
     ld e, $03
     call Call_000_0454
-    ld hl, $1be1
+    ld hl, UnknownData1be1
     add hl, bc
     ld a, [hl]
     bit 7, a
@@ -1064,7 +1067,8 @@ Call_000_06a2:
     push af
     call nz, Call_000_0738
     pop af
-    call z, Call_000_0744
+    ;go to next stage
+    call z, IncrementCurrentStage
     pop af
     bit 6, a
     call nz, Call_000_074c
@@ -1072,7 +1076,7 @@ Call_000_06a2:
     ldh [$c0], a
     ld a, $90
     ldh [$bf], a
-    ld a, [$ca45]
+    ld a, [wCA45]
     call Call_000_092a
     call Call_000_09d0
     call Call_000_0b9d
@@ -1082,7 +1086,7 @@ Call_000_06a2:
     call Func481e
     call Func47c7
     call Func4a29
-    ld a, [$ca46]
+    ld a, [wCurrentStage]
     cp $01
     call z, Call_001_43dc
     ldh a, [$aa]
@@ -1117,16 +1121,16 @@ Jump_000_0701:
 Call_000_0738:
     ld a, $01
     ldh [$aa], a
-    ld a, [$ca47]
+    ld a, [wCA47]
     inc a
-    ld [$ca47], a
+    ld [wCA47], a
     ret
 
 
-Call_000_0744:
-    ld a, [$ca46]
+IncrementCurrentStage:
+    ld a, [wCurrentStage]
     inc a
-    ld [$ca46], a
+    ld [wCurrentStage], a
     ret
 
 
@@ -1228,12 +1232,12 @@ jr_000_07c3:
 
     ld a, $0b
     ldh [$a4], a
-    ld a, [$ca44]
-    cp $00
-    ret z
-
-    dec a
-    ld [$ca44], a
+;decrease lives
+    ld a, [wLives]
+    cp $00 ;does the player have no lives left?
+    ret z ;yes
+    dec a ;decrease lives by 1
+    ld [wLives], a
     call Func47c7
     xor a
     ldh [$c1], a
@@ -1255,7 +1259,7 @@ jr_000_0805:
     call nz, Call_000_19f7
     call Call_000_082b
     ld b, $04
-    ld a, [$ca45]
+    ld a, [wCA45]
     cp $00
     jr nz, jr_000_081f
 
@@ -1274,7 +1278,7 @@ Call_000_0823:
 
 
 Call_000_082b:
-    ld a, [$ca45]
+    ld a, [wCA45]
     inc a
     cp $20
     jr c, jr_000_0835
@@ -1282,7 +1286,7 @@ Call_000_082b:
     ld a, $00
 
 jr_000_0835:
-    ld [$ca45], a
+    ld [wCA45], a
     ret
 
 
@@ -1423,7 +1427,7 @@ Call_000_092a:
     ld b, a
     ld e, $03
     call Call_000_0454
-    ld hl, $1be1
+    ld hl, UnknownData1be1
     add hl, bc
     inc hl
     ld e, [hl]
@@ -1453,7 +1457,7 @@ jr_000_0947:
     ld b, a
     ld e, $06
     call Call_000_0454
-    ld hl, $1b87
+    ld hl, UnknownData1b87
     add hl, bc
     ld b, $00
     ld c, $03
@@ -1653,7 +1657,7 @@ jr_000_0a47:
     ld b, a
     ld e, $06
     call Call_000_0454
-    ld hl, $1b87
+    ld hl, UnknownData1b87
     add hl, bc
     pop af
     ld b, $00
@@ -1773,7 +1777,7 @@ jr_000_0aea:
     ld b, a
     ld e, $06
     call Call_000_0454
-    ld hl, $1b87
+    ld hl, UnknownData1b87
     add hl, bc
     pop af
     ld b, $00
@@ -2034,7 +2038,7 @@ Call_000_0c32:
     ld b, a
     ld e, $06
     call Call_000_0454
-    ld hl, $1b87
+    ld hl, UnknownData1b87
     add hl, bc
     ld b, $00
     ld c, $03
@@ -2091,12 +2095,12 @@ Call_000_0c71:
     sbc [hl]
     ret nc
 
-    ld a, [$ca44]
+    ld a, [wLives]
     cp $09
     jr nc, jr_000_0c8c
 
     inc a
-    ld [$ca44], a
+    ld [wLives], a
     call Func63ae
 
 jr_000_0c8c:
@@ -2107,7 +2111,7 @@ Call_000_0c8f:
     sla a
     ld c, a
     ld b, $00
-    ld hl, $1b5d
+    ld hl, UnknownData1b5d
     add hl, bc
     ld a, [hl+]
     ldh [$a7], a
@@ -2583,7 +2587,7 @@ Call_000_0f2f:
     ld b, a
     ld e, $06
     call Call_000_0454
-    ld hl, $1b87
+    ld hl, UnknownData1b87
     add hl, bc
     ld b, $00
     ld c, $04
@@ -2983,12 +2987,12 @@ Call_000_1113:
     push af
     ld d, $00
     ld e, a
-    ld hl, $1b41
+    ld hl, UnknownData1b41
     ldh a, [$c1]
     cp $00
     jr z, jr_000_1135
 
-    ld hl, $1b51
+    ld hl, UnknownData1b51
 
 jr_000_1135:
     add hl, de
@@ -3055,7 +3059,7 @@ jr_000_1181:
     ld b, $00
     inc a
     ldh [$c5], a
-    ld hl, $1b7d
+    ld hl, UnknownData1b7d
     add hl, bc
     ld a, [hl]
 
@@ -3314,7 +3318,7 @@ Call_000_19cc:
 
 
 Call_000_19e2:
-    ld a, [$ca47]
+    ld a, [wCA47]
     dec a
     cp $03
     jr c, jr_000_19ec
@@ -3325,7 +3329,7 @@ jr_000_19ec:
     ld b, a
     ld e, $03
     call Call_000_0454
-    ld hl, $1b71
+    ld hl, UnknownData1b71
     add hl, bc
     ret
 
@@ -3512,7 +3516,7 @@ db $99,$C3,$0A,$9D,$9B,$A2,$FF,$8A,$90,$8A,$92,$97,$1F,$00
 
 Call_000_1b1b:
     call Call_000_023d
-    ld hl, $1b33
+    ld hl, UnknownData1b33
     ld de, $c901
     ld b, $0e
 .loop
@@ -3525,5 +3529,8 @@ Call_000_1b1b:
     ldh [$ffa3], a
     jp Call_000_0221
 ;1b33
-INCBIN "data/bank0endData.bin"
-ds $1bc
+UnknownData1b33::
+INCLUDE "data/data1b33.asm"
+;1c42
+INCLUDE "data/stageData.asm"
+;ds $1bc
