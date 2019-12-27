@@ -3,7 +3,7 @@
 ;00: no movement
 ;some levels have different widths
 ;format: stage propetries value, stage data
-StageDataPointerTable::
+StageDataTable::
     dbw $00, StageData1
     dbw $40, StageData1
     dbw $00, StageData9
@@ -39,7 +39,7 @@ StageDataPointerTable::
     dbw $00, StageData1
 
 
-;the main stages tile data seem to just be reused for clone levels(such as when a level has a later scrolling version)
+;the main stages tile data are reused for clone levels(such as when a level has a later scrolling version)
 ;stage data format:
 ;most stage tilemaps have a width of 28 or 14
 ;tile indices format(index: block image tile index):

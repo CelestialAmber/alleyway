@@ -21,7 +21,7 @@ VBlankInterrupt::
     rst $38
 
 LCDCInterrupt::
-    jp Jump_000_0260
+    jp _LCDCInterrupt
     rst $38
     rst $38
     rst $38
@@ -29,7 +29,7 @@ LCDCInterrupt::
     rst $38
 
 TimerOverflowInterrupt::
-    jp Jump_000_0453
+    jp _TimerOverflowInterrupt
     rst $38
     rst $38
     rst $38
@@ -37,7 +37,7 @@ TimerOverflowInterrupt::
     rst $38
 
 SerialTransferCompleteInterrupt::
-    jp Jump_000_0272
+    jp _SerialTransferCompleteInterrupt
     rst $38
     rst $38
     rst $38

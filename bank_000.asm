@@ -37,13 +37,14 @@ Start:
     jr nz, .loopRam
     ld hl, $fffe
     ld b, $7f
-    ;zero out
+    ;zero out hram except for address ffff
 .loopHRam
     ld [hl-], a
     dec b
     jr nz, .loopHRam
     ld hl, $feff
     ld b, $ff
+    ;zero out fe00-feff
 .loop2:
     ld [hl-], a
     dec b
@@ -192,7 +193,7 @@ jr_000_0257:
     ret
 
 
-Jump_000_0260:
+_LCDCInterrupt:
     push af
     push bc
     push de
@@ -208,7 +209,7 @@ Jump_000_0260:
     reti
 
 
-Jump_000_0272:
+_SerialTransferCompleteInterrupt:
     push af
     push bc
     ldh a, [$90]
@@ -649,7 +650,7 @@ jr_000_044a:
     or $01
     jr jr_000_044a
 
-Jump_000_0453:
+_TimerOverflowInterrupt:
     reti
 
 
@@ -977,12 +978,11 @@ jr_000_0619:
     ld b, a
     ld e, $03
     call Call_000_0454
-    ld hl, StageDataPointerTable
-    add hl, bc
-    ld a, [hl]
-    bit 7, a
-    jr nz, jr_000_0619
-
+    ld hl, StageDataTable
+    add hl, bc ;add bc to hl to point to the right entry
+    ld a, [hl] ;read the first byte (stage properties byte)
+    bit 7, a ;is the 7th bit of the number 1?
+    jr nz, jr_000_0619 ;yes
     ld a, $ff
     ld [wCurrentStage], a
     inc a
@@ -1059,7 +1059,7 @@ Call_000_06a2:
     ld b, a
     ld e, $03
     call Call_000_0454
-    ld hl, StageDataPointerTable
+    ld hl, StageDataTable
     add hl, bc
     ld a, [hl]
     bit 7, a
@@ -1073,15 +1073,15 @@ Call_000_06a2:
     bit 6, a
     call nz, Call_000_074c
     ld a, $28
-    ldh [$c0], a
+    ldh [$ffc0], a
     ld a, $90
-    ldh [$bf], a
+    ldh [$ffbf], a
     ld a, [wCA45]
     call Call_000_092a
     call Call_000_09d0
     call Call_000_0b9d
     xor a
-    ldh a, [$ac]
+    ldh a, [$ffac]
     call Call_001_4a0f
     call Func481e
     call Func47c7
@@ -1089,7 +1089,7 @@ Call_000_06a2:
     ld a, [wCurrentStage]
     cp $01
     call z, Call_001_43dc
-    ldh a, [$aa]
+    ldh a, [$ffaa]
     cp $00
 
 Jump_000_0701:
@@ -1108,19 +1108,19 @@ Jump_000_0701:
     call Func481e
     call Func4a29
     call Call_001_4a0f
-    ldh a, [$aa]
+    ldh a, [$ffaa]
     cp $00
     call nz, Call_000_19cc
     xor a
-    ldh [$c5], a
+    ldh [$ffc5], a
     ld a, $05
-    ldh [$a4], a
+    ldh [$ffa4], a
     ret
 
 
 Call_000_0738:
     ld a, $01
-    ldh [$aa], a
+    ldh [$ffaa], a
     ld a, [wCA47]
     inc a
     ld [wCA47], a
@@ -1161,17 +1161,17 @@ jr_000_0762:
     jr nz, jr_000_0762
 
     ld a, $01
-    ldh [$ab], a
+    ldh [$ffab], a
     ret
 
 
     call Call_000_0b21
     call Call_000_109d
-    ldh a, [$8d]
+    ldh a, [$ff8d]
     and $01
     jr z, jr_000_0784
 
-    ldh a, [$93]
+    ldh a, [$ff93]
     and $80
     ret nz
 
@@ -1427,8 +1427,8 @@ Call_000_092a:
     ld b, a
     ld e, $03
     call Call_000_0454
-    ld hl, StageDataPointerTable
-    add hl, bc
+    ld hl, StageDataTable
+    add hl, bc ;point hl to the respective entry
     inc hl
     ld e, [hl]
     inc hl
