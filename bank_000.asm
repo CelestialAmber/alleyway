@@ -977,7 +977,7 @@ jr_000_0619:
     ld b, a
     ld e, $03
     call Call_000_0454
-    ld hl, UnknownData1be1
+    ld hl, StageDataPointerTable
     add hl, bc
     ld a, [hl]
     bit 7, a
@@ -1059,7 +1059,7 @@ Call_000_06a2:
     ld b, a
     ld e, $03
     call Call_000_0454
-    ld hl, UnknownData1be1
+    ld hl, StageDataPointerTable
     add hl, bc
     ld a, [hl]
     bit 7, a
@@ -1427,7 +1427,7 @@ Call_000_092a:
     ld b, a
     ld e, $03
     call Call_000_0454
-    ld hl, UnknownData1be1
+    ld hl, StageDataPointerTable
     add hl, bc
     inc hl
     ld e, [hl]
@@ -2704,7 +2704,7 @@ jr_000_0fbd:
     dec a
     sla a
     ld c, a
-    ld hl, $11ee
+    ld hl, UnknownData11ee
     add hl, bc
     ld a, [hl+]
     ld c, a
@@ -2820,7 +2820,7 @@ jr_000_104c:
     push af
     ld b, $00
     ld c, $00
-    ld hl, $11ee
+    ld hl, UnknownData11ee
     add hl, bc
     ld a, [hl+]
     ld c, a
@@ -2977,7 +2977,7 @@ Call_000_1113:
     dec a
     sla a
     ld c, a
-    ld hl, $11ee
+    ld hl, UnknownData11ee
     add hl, bc
     ld a, [hl+]
     ld c, a
@@ -3529,8 +3529,7 @@ Call_000_1b1b:
     ldh [$ffa3], a
     jp Call_000_0221
 ;1b33
-UnknownData1b33::
 INCLUDE "data/data1b33.asm"
-;1c42
+;1be1
 INCLUDE "data/stageData.asm"
 ;ds $1bc

@@ -1,5 +1,5 @@
 include "charmap.asm"
-include "macros/macros_main.asm"
+include "macros/macros.asm"
 include "hram.asm"
 
 
