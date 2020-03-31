@@ -1,17 +1,17 @@
-UnknownData1b33::
+UnknownData_1b33::
 db $99,$C3,$0A,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$00
-UnknownData1b41::
+UnknownData_1b41::
 db $03,$06,$06,$06,$09,$09,$09,$09,$09,$09,$09,$09,$06,$06,$06,$03
-UnknownData1b51::
+UnknownData_1b51::
 db $03,$06,$06,$09,$09,$09,$09,$09,$09,$06,$06,$03
-UnknownData1b5d::
+UnknownData_1b5d::
 db $03,$E8,$07,$D0,$0B,$B8,$0F,$A0,$13,$88,$17,$70,$1B,$58,$1F,$40
 db $23,$28,$FF,$FF
-UnknownData1b71::
+UnknownData_1b71::
 db $5F,$01,$F4,$5A,$02,$BC,$55,$03,$E8,$50,$05,$DC
-UnknownData1b7d::
+UnknownData_1b7d::
 db $08,$08,$05,$05,$03,$03,$02,$02,$02,$02
-UnknownData1b87::
+UnknownData_1b87::
 db $AB,$AE,$A8,$11,$00,$01,$AC,$AF,$A9,$21,$05,$02,$AD,$B0,$AA,$31
 db $07,$03,$00,$00,$B3,$10,$00,$00,$00,$00,$00,$11,$00,$00,$00,$00
 db $00,$11,$00,$00,$00,$00,$00,$11,$00,$00,$00,$00,$00,$11,$00,$00

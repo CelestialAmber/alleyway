@@ -7,7 +7,7 @@ SECTION "ROM Bank $001", ROMX[$4000], BANK[$1]
 INCBIN "data/bank1StartData.bin"
 
 TitleScreenTilemap::
-    INCBIN "data/title_screen_tilemap.bin"
+INCBIN "data/title_screen_tilemap.bin"
 
 ;bottom tilemap data(text)
 db "TOP SCORE"
@@ -39,29 +39,27 @@ db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$01,$00
 db $00,$00,$FF
 
-Call_001_43dc:
+DoMarioIntroAnimation:
     call Call_000_118f
     call Call_001_63ec
-    ldh a, [$c0]
+    ldh a, [hPaddleXPos]
     add $50
-    ld [$ca3e], a
-    ldh a, [$bf]
+    ld [wMarioXPos], a
+    ldh a, [$ffbf]
     sub $10
-    ld [$ca3f], a
+    ld [wMarioYPos], a
     ld a, $03
     ld [$ca41], a
 jr_001_43f5:
     call Call_001_44a4
     call Call_001_44be
-    ld a, [$ca3e]
+    ld a, [wMarioXPos]
     dec a
-    ld [$ca3e], a
+    ld [wMarioXPos], a
     cp $44
     jr nz, jr_001_43f5
-
     ld a, $03
     ld [$ca40], a
-
 Jump_001_440b:
     call Call_001_44be
     call Call_001_63ce
@@ -71,25 +69,22 @@ Jump_001_440b:
     xor a
     ld [$ca42], a
     ld [$ca43], a
-
 jr_001_4420:
     call Call_001_44be
     call Call_001_44cf
     ld a, [$ca42]
     cp $18
     jr c, jr_001_4420
-
 jr_001_442d:
     call Call_001_44be
-    ld a, [$ca3f]
+    ld a, [wMarioYPos]
     inc a
     inc a
     inc a
     inc a
-    ld [$ca3f], a
+    ld [wMarioYPos], a
     cp $88
     jr c, jr_001_442d
-
     call Func0378
     ld a, $10
     call Call_000_0257
@@ -97,24 +92,22 @@ jr_001_442d:
     call Call_000_118f
     ret
 
-Func444d:
+PlayMarioGameOverAnimation:
     call Call_000_10fb
     call Call_000_118f
     call Call_001_63d2
     call Call_001_450d
     ld a, $88
-    ld [$ca3f], a
-    ldh a, [$c0]
+    ld [wMarioYPos], a
+    ldh a, [hPaddleXPos]
     add $04
-    ld [$ca3e], a
+    ld [wMarioXPos], a
     ld b, $00
     ld c, $05
     cp $4c
     jr nc, jr_001_4471
-
     ld b, $01
     ld c, $06
-
 jr_001_4471:
     ld a, b
     ld [$ca43], a
@@ -122,25 +115,22 @@ jr_001_4471:
     ld [$ca40], a
     xor a
     ld [$ca42], a
-
 jr_001_447d:
     call Call_001_44be
     call Call_001_44cf
     ld a, [$ca42]
     cp $18
     jr c, jr_001_447d
-
 jr_001_448a:
     call Call_001_44be
-    ld a, [$ca3f]
+    ld a, [wMarioYPos]
     inc a
     inc a
     inc a
     inc a
-    ld [$ca3f], a
+    ld [wMarioYPos], a
     cp $a0
     jr c, jr_001_448a
-
     call Func0378
     ld a, $40
     call Call_000_0257
@@ -152,14 +142,11 @@ Call_001_44a4:
     dec a
     ld [$ca41], a
     ret nz
-
     ld a, [$ca40]
     inc a
     cp $03
     jr c, jr_001_44b5
-
     xor a
-
 jr_001_44b5:
     ld [$ca40], a
     ld a, $05
@@ -168,9 +155,9 @@ jr_001_44b5:
 
 
 Call_001_44be:
-    ld a, [$ca3e]
+    ld a, [wMarioXPos]
     ld b, a
-    ld a, [$ca3f]
+    ld a, [wMarioYPos]
     ld c, a
     ld a, [$ca40]
     call Call_001_4a66
@@ -187,16 +174,16 @@ Call_001_44cf:
     add hl, bc
     ld a, [hl]
     ld b, a
-    ld a, [$ca3f]
+    ld a, [wMarioYPos]
     add b
-    ld [$ca3f], a
+    ld [wMarioYPos], a
     ld a, [$ca43]
     sla a
     dec a
     ld b, a
-    ld a, [$ca3e]
+    ld a, [wMarioXPos]
     add b
-    ld [$ca3e], a
+    ld [wMarioXPos], a
     ret
 
 
@@ -222,7 +209,6 @@ Call_001_44cf:
 Call_001_450d:
     call Call_000_118f
     xor a
-
 jr_001_4511:
     push af
     call Call_001_4533
@@ -232,13 +218,11 @@ jr_001_4511:
     inc a
     cp $03
     jr c, jr_001_4511
-
     ret
 
 
 Call_001_4521:
     ld a, $02
-
 jr_001_4523:
     push af
     call Call_001_4533
@@ -248,7 +232,6 @@ jr_001_4523:
     dec a
     cp $ff
     jr nz, jr_001_4523
-
     ret
 
 
@@ -281,21 +264,22 @@ Call_001_4533:
     ld [bc], a
     inc bc
     ld [bc], a
-Func455d
+
+
+Func455d::
     call Call_001_63e0
-    ldh a, [$b6]
+    ldh a, [hBallXPos]
     sub $08
-    ld [$ca3e], a
+    ld [wMarioXPos], a
     ld a, $90
-    ld [$ca3f], a
+    ld [wMarioYPos], a
     xor a
     ld [$ca41], a
-
 jr_001_4570:
     push bc
-    ld a, [$ca3e]
+    ld a, [wMarioXPos]
     ld b, a
-    ld a, [$ca3f]
+    ld a, [wMarioYPos]
     ld c, a
     ld a, [$ca41]
     ld d, $00
@@ -311,7 +295,6 @@ jr_001_4570:
     ld [$ca41], a
     cp $24
     jr c, jr_001_4570
-
     jp Func0378
 
 
@@ -343,10 +326,11 @@ jr_001_4570:
     add hl, bc
     add hl, bc
     add hl, bc
+
+
 Func45bd:
     xor a
     ld [$ca41], a
-
 jr_001_45c1:
     push bc
     ld b, $38
@@ -365,7 +349,6 @@ jr_001_45c1:
     ld [$ca41], a
     cp $1d
     jr c, jr_001_45c1
-
     jp Func0378
 
 
@@ -398,7 +381,9 @@ jr_001_45c1:
     dec bc
     dec bc
     ld a, [bc]
-Func4603:
+
+
+Func_4603::
     call Call_000_024f
     call Call_000_0233
     call Call_000_0358
@@ -409,46 +394,42 @@ Func4603:
     ldh [rWX], a
     ld a, $00
     ldh [rWY], a
-    ldh a, [$9c]
+    ldh a, [hLCDC]
     or $60
-    ldh [$9c], a
+    ldh [hLCDC], a
     xor a
-    ldh a, [$ac]
+    ldh a, [$ffac]
     ld a, $08
     ldh [rLYC], a
     ld a, $44
     ldh [rSTAT], a
-    ldh a, [$9d]
+    ldh a, [$ff9d]
     or $02
     or $08
-    ldh [$9d], a
+    ldh [$ff9d], a
     ld a, $e4
     call Call_000_08ca
-    ld de, UnknownData4a3c
+    ld de, UnknownData_4a3c
     call Call_000_02c1
-    ldh a, [$a4]
+    ldh a, [hGameStateIndex]
     cp $03
     jr z, jr_001_4660
-
-    ld a, [wCurrentStage]
+    ld a, [wDisplayedStage]
     cp $00
     jr z, jr_001_4660
-
-    ld a, [wCA45]
+    ld a, [wCurrentStage]
     cp $00
     jr nz, jr_001_4660
-
     ld de, $42b3
     call Call_000_02c1
     ld a, $00
     call Call_000_08ca
-
 jr_001_4660:
     call Call_001_4a0f
     call Call_000_022d
     jp Call_000_0244
 
-Func4669:
+DisplayStageText::
     ld a, $70
     ld [$c880], a
     ld [$c884], a
@@ -483,19 +464,19 @@ Func4669:
     ld [$c897], a
     ld [$c89b], a
     ld [$c89f], a
-    ld a, $9c
+    ld a, "S"
     ld [$c882], a
-    ld a, $9d
+    ld a, "T"
     ld [$c886], a
-    ld a, $8a
+    ld a, "A"
     ld [$c88a], a
-    ld a, $90
+    ld a, "G"
     ld [$c88e], a
-    ld a, $8e
+    ld a, "E"
     ld [$c892], a
-    ld a, $3e
+    ld a, $3e ;" "
     ld [$c896], a
-    ld a, [wCurrentStage]
+    ld a, [wDisplayedStage]
     call Call_000_047c
     push af
     ld a, b
@@ -506,7 +487,7 @@ Func4669:
     ld [$c89e], a
     ret
 
-Func46f7:
+PrintBonusText::
     ld a, $70
     ld [$c880], a
     ld [$c884], a
@@ -529,19 +510,19 @@ Func46f7:
     ld [$c89b], a
     ld [$c89f], a
     ld [$c893], a
-    ld a, $8b
+    ld a, "B"
     ld [$c882], a
-    ld a, $98
+    ld a, "O"
     ld [$c886], a
-    ld a, $97
+    ld a, "N"
     ld [$c88a], a
-    ld a, $9e
+    ld a, "U"
     ld [$c88e], a
-    ld a, $9c
+    ld a, "S"
     ld [$c892], a
     ret
 
-Func474c:
+PrintPauseText::
     ld a, $70
     ld [$c880], a
     ld [$c884], a
@@ -564,19 +545,19 @@ Func474c:
     ld [$c89b], a
     ld [$c89f], a
     ld [$c893], a
-    ld a, $99
+    ld a, "P"
     ld [$c882], a
-    ld a, $8a
+    ld a, "A"
     ld [$c886], a
-    ld a, $9e
+    ld a, "U"
     ld [$c88a], a
-    ld a, $9c
+    ld a, "S"
     ld [$c88e], a
-    ld a, $8e
+    ld a, "E"
     ld [$c892], a
     ret
 
-Func47a1:
+Func_47a1:
     call Call_000_023d
     ld hl, $c901
     ld a, $9d
@@ -585,7 +566,7 @@ Func47a1:
     ld [hl+], a
     ld a, $02
     ld [hl+], a
-    ld a, [wCurrentStage]
+    ld a, [wDisplayedStage]
     call Call_000_047c
     push af
     ld a, b
@@ -597,10 +578,10 @@ Func47a1:
     xor a
     ld [hl+], a
     inc a
-    ldh [$a3], a
+    ldh [$ffa3], a
     jp Call_000_0221
 
-Func47c7:
+Func_47c7:
     call Call_000_023d
     ld hl, $c901
     ld a, $9e
@@ -615,10 +596,10 @@ Func47c7:
     xor a
     ld [hl+], a
     inc a
-    ldh [$a3], a
+    ldh [$ffa3], a
     jp Call_000_0221
 
-Func47e4:
+Func_47e4:
     call Call_000_023d
     ld hl, $c901
     ld a, $9d
@@ -635,15 +616,14 @@ Func47e4:
     ld [hl+], a
     ld a, $8e
     ld [hl+], a
-
 jr_001_47ff:
     xor a
     ld [hl+], a
     inc a
-    ldh [$a3], a
+    ldh [$ffa3], a
     jp Call_000_0221
 
-Func4807:
+Func_4807:
     call Call_000_023d
     ld hl, $c901
     ld a, $9d
@@ -658,31 +638,28 @@ Func4807:
     ld [hl+], a
     ld [hl+], a
     jr jr_001_47ff
-Func481e:
+Func_481e:
+    ;update the score on screen?
     ld hl, $c814
-    ldh a, [$ca]
+    ldh a, [hScoreLowByte]
     ld b, a
-    ldh a, [$cb]
-    call Func048f
+    ldh a, [hScoreHighByte]
+    call Func_048f
     ld a, $40
     ld [hl+], a
     ld a, $88
     ld [hl+], a
     ld b, $ff
-    ldh a, [$9a]
+    ldh a, [$ff9a]
     cp $00
     jr z, jr_001_4845
-
     ld b, $bf
     cp $01
     jr z, jr_001_4845
-
     ld b, $bc
     cp $02
     jr z, jr_001_4845
-
     ld b, $c9
-
 jr_001_4845:
     ld a, b
     ld [hl+], a
@@ -692,7 +669,7 @@ jr_001_4845:
     ld [hl+], a
     ld a, $88
     ld [hl+], a
-    ldh a, [$99]
+    ldh a, [$ff99]
     add $80
     ld [hl+], a
     ld a, $00
@@ -701,7 +678,7 @@ jr_001_4845:
     ld [hl+], a
     ld a, $90
     ld [hl+], a
-    ldh a, [$98]
+    ldh a, [$ff98]
     add $80
     ld [hl+], a
     ld a, $00
@@ -710,7 +687,7 @@ jr_001_4845:
     ld [hl+], a
     ld a, $98
     ld [hl+], a
-    ldh a, [$97]
+    ldh a, [$ff97]
     add $80
     ld [hl+], a
     ld a, $00
@@ -719,34 +696,30 @@ jr_001_4845:
     ld [hl+], a
     ld a, $a0
     ld [hl+], a
-    ldh a, [$96]
+    ldh a, [$ff96]
     add $80
     ld [hl+], a
     ld a, $00
     ld [hl+], a
-    ldh a, [$cc]
+    ldh a, [hHighScoreLowByte]
     ld b, a
-    ldh a, [$cd]
-    call Func048f
+    ldh a, [hHighScoreHighByte]
+    call Func_048f
     ld a, $28
     ld [hl+], a
     ld a, $88
     ld [hl+], a
     ld b, $ff
-    ldh a, [$9a]
+    ldh a, [$ff9a]
     cp $00
     jr z, jr_001_48a6
-
     ld b, $bf
     cp $01
     jr z, jr_001_48a6
-
     ld b, $bc
     cp $02
     jr z, jr_001_48a6
-
     ld b, $c9
-
 jr_001_48a6:
     ld a, b
     ld [hl+], a
@@ -756,7 +729,7 @@ jr_001_48a6:
     ld [hl+], a
     ld a, $88
     ld [hl+], a
-    ldh a, [$99]
+    ldh a, [$ff99]
     add $80
     ld [hl+], a
     ld a, $00
@@ -765,7 +738,7 @@ jr_001_48a6:
     ld [hl+], a
     ld a, $90
     ld [hl+], a
-    ldh a, [$98]
+    ldh a, [$ff98]
     add $80
     ld [hl+], a
     ld a, $00
@@ -774,7 +747,7 @@ jr_001_48a6:
     ld [hl+], a
     ld a, $98
     ld [hl+], a
-    ldh a, [$97]
+    ldh a, [$ff97]
     add $80
     ld [hl+], a
     ld a, $00
@@ -783,25 +756,25 @@ jr_001_48a6:
     ld [hl+], a
     ld a, $a0
     ld [hl+], a
-    ldh a, [$96]
+    ldh a, [$ff96]
     add $80
     ld [hl+], a
     ld a, $00
     ld [hl+], a
     ret
 
-Func48e4:
-    ldh a, [$cc]
+Func_48e4:
+    ldh a, [hHighScoreLowByte]
     ld b, a
-    ldh a, [$cd]
-    call Func048f
+    ldh a, [hHighScoreHighByte]
+    call Func_048f
     ld hl, $c828
     ld a, $70
     ld [hl+], a
     ld a, $70
     ld [hl+], a
     ld b, $ff
-    ldh a, [$9a]
+    ldh a, [$ff9a]
     cp $00
     jr z, jr_001_490b
 
@@ -824,7 +797,7 @@ jr_001_490b:
     ld [hl+], a
     ld a, $70
     ld [hl+], a
-    ldh a, [$99]
+    ldh a, [$ff99]
     add $80
     ld [hl+], a
     ld a, $00
@@ -833,7 +806,7 @@ jr_001_490b:
     ld [hl+], a
     ld a, $78
     ld [hl+], a
-    ldh a, [$98]
+    ldh a, [$ff98]
     add $80
     ld [hl+], a
     ld a, $00
@@ -842,7 +815,7 @@ jr_001_490b:
     ld [hl+], a
     ld a, $80
     ld [hl+], a
-    ldh a, [$97]
+    ldh a, [$ff97]
     add $80
     ld [hl+], a
     ld a, $00
@@ -851,23 +824,23 @@ jr_001_490b:
     ld [hl+], a
     ld a, $88
     ld [hl+], a
-    ldh a, [$96]
+    ldh a, [$ff96]
     add $80
     ld [hl+], a
     ld a, $00
     ld [hl+], a
     ret
 
-Func4949:
+Func_4949:
     ld hl, $c888
     ld a, b
     ld b, c
-    call Func048f
+    call Func_048f
     ld a, $78
     ld [hl+], a
     ld a, $30
     ld [hl+], a
-    ldh a, [$99]
+    ldh a, [$ff99]
     add $80
     ld [hl+], a
     ld a, $00
@@ -876,7 +849,7 @@ Func4949:
     ld [hl+], a
     ld a, $38
     ld [hl+], a
-    ldh a, [$98]
+    ldh a, [$ff98]
     add $80
     ld [hl+], a
     ld a, $00
@@ -885,7 +858,7 @@ Func4949:
     ld [hl+], a
     ld a, $40
     ld [hl+], a
-    ldh a, [$97]
+    ldh a, [$ff97]
     add $80
     ld [hl+], a
     ld a, $00
@@ -894,14 +867,14 @@ Func4949:
     ld [hl+], a
     ld a, $48
     ld [hl+], a
-    ldh a, [$96]
+    ldh a, [$ff96]
     add $80
     ld [hl+], a
     ld a, $00
     ld [hl+], a
     ret
 
-Func498a:
+PrintGameOverText::
     ld a, $50
     ld [$c800], a
     ld [$c804], a
@@ -936,36 +909,34 @@ Func498a:
     ld [$c817], a
     ld [$c81b], a
     ld [$c81f], a
-    ld a, $90
+    ;set each respective byte of each sprite slot to the text "GAME OVER"
+    ld a, "G"
     ld [$c802], a
-    ld a, $8a
+    ld a, "A"
     ld [$c806], a
-    ld a, $96
+    ld a, "M"
     ld [$c80a], a
-    ld a, $8e
+    ld a, "E"
     ld [$c80e], a
-    ld a, $98
+    ld a, "O"
     ld [$c812], a
-    ld a, $9f
+    ld a, "V"
     ld [$c816], a
-    ld a, $8e
+    ld a, "E"
     ld [$c81a], a
-    ld a, $9b
+    ld a, "R"
     ld [$c81e], a
     ret
-
 
 Call_001_4a0f:
     ld hl, $c83c
     ld e, $18
     ld d, $11
-
 jr_001_4a16:
     ld a, e
     ld [hl+], a
     ld a, $08
     ld [hl+], a
-
 jr_001_4a1b:
     ld a, $b4
     ld [hl+], a
@@ -985,7 +956,7 @@ Func4a29:
 ;unknown data at 4a2a
 db $21,$10,$C8,$3E,$98,$22,$3E,$10,$22,$F0,$BE,$C6,$80,$22,$3E,$00
 db $22,$C9
-UnknownData4a3c::
+UnknownData_4a3c::
 db $9C,$00,$01,$BE,$9C,$20,$D8,$B4,$98,$00,$01,$BD,$98,$01
 db $54,$B5,$9C,$21,$03,$9D,$98,$99,$9C,$81,$04,$B8,$B9,$BA,$BB,$9D
 db $41,$04,$C0,$C1,$C2,$C3,$9E,$02,$02,$B1,$B2,$00
@@ -994,7 +965,7 @@ Call_001_4a66:
     sla a
     ld e, a
     ld d, $00
-    ld hl, UnknownData4a8b
+    ld hl, UnknownData_4a8b
     add hl, de
     ld d, [hl]
     inc hl
@@ -1022,7 +993,7 @@ jr_001_4a77:
     jr nz, jr_001_4a77
     ret
 ;data offset 4a8b
-UnknownData4a8b::
+UnknownData_4a8b::
 db $4A,$A5,$4A,$B5,$4A,$C5,$4A,$D5,$4A,$E5,$4A,$F5,$4B,$05,$4B,$15
 db $4B,$25,$4B,$35,$4B,$45,$4B,$55,$4B,$65,$00,$00,$06,$80,$00,$08
 db $07,$80,$08,$00,$08,$80,$08,$08,$09,$80,$00,$00,$0A,$80,$00,$08
@@ -1040,6 +1011,7 @@ db $22,$00,$08,$00,$23,$00,$08,$08,$24,$00,$00,$00,$21,$00,$00,$08
 db $22,$00,$08,$00,$25,$00,$08,$08,$26,$00
 
 ;start of paddle graphics/others
+;the first 6 graphics files get loaded together starting at the paddle graphics offset
 ;4b75
 PaddleGraphics::
     INCBIN "gfx/paddle.2bpp"
@@ -1099,6 +1071,7 @@ SpecialStageText::
 
 StarImage::
     INCBIN "gfx/star.2bpp"
+    
 ;5815
 ds $360
 
@@ -1122,7 +1095,7 @@ EndingNintendoLogo::
 
 ds $270
 
-Func6375:
+Func_6375::
     ld a, $80
     ldh [rNR52], a
     ld a, $77
@@ -1131,23 +1104,23 @@ Func6375:
     ldh [rNR51], a
     ret
 
-Func6382:
+DisableDemoMode:
     xor a
-    ld [$dfd8], a
+    ld [wInDemoMode], a
     ret
 
-Func6387:
+EnableDemoMode:
     ld a, $01
-    ld [$dfd8], a
+    ld [wInDemoMode], a
     ret
 
 Func638d:
-    ldh a, [$b1]
+    ldh a, [$ffb1]
     dec a
     ld b, a
     ld e, $06
     call Call_000_0454
-    ld hl, UnknownData1b87
+    ld hl, UnknownData_1b87
     add hl, bc
     ld b, $00
     ld c, $05
@@ -1160,26 +1133,21 @@ Func638d:
     cp $02
     jr z, jr_001_63be
     jr jr_001_63c2
-
 Func63ae:
     ld a, $01
     jr jr_001_63dc
-
 jr_001_63b2:
     ld a, $02
     jr jr_001_63dc
-
 jr_001_63b6:
     ld a, $03
     jr jr_001_63dc
 jr_001_63ba:
     ld a, $04
     jr jr_001_63dc
-
 jr_001_63be:
     ld a, $05
     jr jr_001_63dc
-
 jr_001_63c2:
     ld a, $06
     jr jr_001_63dc
@@ -1189,19 +1157,15 @@ Func63c6:
 Func63ca:
     ld a, $08
     jr jr_001_63dc
-
 Call_001_63ce:
     ld a, $09
     jr jr_001_63dc
-
 Call_001_63d2:
     ld a, $0a
     jr jr_001_63dc
-
 Func63d6:
     ld a, $0b
     jr jr_001_63dc
-
 Func63da:
     ld a, $0c
 jr_001_63dc:
@@ -1212,15 +1176,13 @@ jr_001_63dc:
 Call_001_63e0:
     ld a, $01
     jr jr_001_63e4
-
 jr_001_63e4:
     ld [$dfe1], a
     ret
 
-
+Func_63e8:
     ld a, $01
     jr jr_001_6416
-
 Call_001_63ec:
     ld a, $02
     jr jr_001_6416
@@ -1253,1010 +1215,13 @@ Func6410:
     jr jr_001_6416
 Func6414:
     ld a, $0c
-
 jr_001_6416:
     ld [$dfe8], a
     ret
 
-
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
+REPT 998
+db $FF
+ENDR
 
 Jump_001_6800:
     call Call_001_69e7
@@ -2271,31 +1236,23 @@ Jump_001_6800:
     ret
 
 
-    ldh a, [$81]
+    ldh a, [$ff81]
     bit 0, a
     jp nz, Jump_001_6847
-
     bit 1, a
     jp nz, Jump_001_684d
-
     bit 3, a
     jp nz, Jump_001_6853
-
     bit 2, a
     jp nz, Jump_001_6859
-
     bit 4, a
     jp nz, Jump_001_685f
-
     bit 5, a
     jp nz, Jump_001_6865
-
     bit 6, a
     jp nz, Jump_001_686b
-
     bit 7, a
     jp nz, Jump_001_6871
-
     jp Jump_001_6877
 
 
@@ -2351,31 +1308,23 @@ Jump_001_6877:
     ret
 
 
-    ldh a, [$81]
+    ldh a, [$ff81]
     bit 0, a
     jp nz, Jump_001_68a5
-
     bit 1, a
     jp nz, Jump_001_68ae
-
     bit 3, a
     jp nz, Jump_001_68b7
-
     bit 2, a
     jp nz, Jump_001_68c0
-
     bit 4, a
     jp nz, Jump_001_68c9
-
     bit 5, a
     jp nz, Jump_001_68d2
-
     bit 6, a
     jp nz, Jump_001_68db
-
     bit 7, a
     jp nz, Jump_001_68e4
-
     jp Jump_001_68ed
 
 
@@ -2439,31 +1388,23 @@ Jump_001_68ed:
     ret
 
 
-    ldh a, [$81]
+    ldh a, [$ff81]
     bit 0, a
     jp nz, Jump_001_691b
-
     bit 1, a
     jp nz, Jump_001_6921
-
     bit 3, a
     jp nz, Jump_001_6927
-
     bit 2, a
     jp nz, Jump_001_692d
-
     bit 4, a
     jp nz, Jump_001_6933
-
     bit 5, a
     jp nz, Jump_001_6939
-
     bit 6, a
     jp nz, Jump_001_693f
-
     bit 7, a
     jp nz, Jump_001_6945
-
     jp Jump_001_6877
 
 
@@ -2518,31 +1459,23 @@ Jump_001_6945:
     ret
 
 
-    ldh a, [$81]
+    ldh a, [$ff81]
     bit 0, a
     jp nz, Jump_001_6979
-
     bit 1, a
     jp nz, Jump_001_697f
-
     bit 3, a
     jp nz, Jump_001_6985
-
     bit 2, a
     jp nz, Jump_001_698b
-
     bit 4, a
     jp nz, Jump_001_6991
-
     bit 5, a
     jp nz, Jump_001_6997
-
     bit 6, a
     jp nz, Jump_001_699d
-
     bit 7, a
     jp nz, Jump_001_69a3
-
     jp Jump_001_69a9
 
 
@@ -2597,7 +1530,7 @@ Jump_001_69a3:
 Jump_001_69a9:
     ret
 
-
+Func_69aa::
     push af
     push bc
     ld a, $10
@@ -2624,12 +1557,12 @@ Jump_001_69a9:
     swap a
     or b
     ld c, a
-    ldh a, [$80]
+    ldh a, [hOAMDMAFunction]
     xor c
     and c
-    ldh [$81], a
+    ldh [$ff81], a
     ld a, c
-    ldh [$80], a
+    ldh [hOAMDMAFunction], a
     ld a, $30
     ldh [rP1], a
     pop bc
@@ -2638,10 +1571,9 @@ Jump_001_69a9:
 
 
 Call_001_69e7:
-    ld a, [$dfd8]
+    ld a, [wInDemoMode]
     cp $01
     jp z, Jump_001_69f0
-
     ret
 
 
@@ -2657,78 +1589,54 @@ Call_001_69fb:
     ld a, [$dfe2]
     cp $01
     jp z, Jump_001_6bad
-
     ld a, [$dfe0]
     cp $04
     jp z, Jump_001_6ac6
-
     cp $02
     jp z, Jump_001_6a90
-
     cp $03
     jp z, Jump_001_6aab
-
     cp $01
     jp z, Jump_001_6a7d
-
     cp $05
     jp z, Jump_001_6ae1
-
     cp $06
     jp z, Jump_001_6afc
-
     cp $07
     jp z, Jump_001_6b17
-
     cp $08
     jp z, Jump_001_6b2a
-
     cp $09
     jp z, Jump_001_6b3d
-
     cp $0a
     jp z, Jump_001_6b57
-
     cp $0b
     jp z, Jump_001_6b76
-
     cp $0c
     jp z, Jump_001_6b8b
-
     ld a, [$dfe2]
     cp $02
     jp z, Jump_001_6c17
-
     cp $03
     jp z, Jump_001_6c5d
-
     cp $04
     jp z, Jump_001_6ca3
-
     cp $05
     jp z, Jump_001_6ce9
-
     cp $06
     jp z, Jump_001_6d2f
-
     cp $07
     jp z, Jump_001_6d75
-
     cp $08
     jp z, Jump_001_6dad
-
     cp $09
     jp z, Jump_001_6df3
-
     cp $0a
     jp z, Jump_001_6e66
-
     cp $0b
     jp z, Jump_001_6ed7
-
     cp $0c
     jp z, Jump_001_6f18
-
     ret
 
 
@@ -2747,7 +1655,6 @@ Jump_001_6a90:
     ld a, [$dfd7]
     cp $01
     jp z, Jump_001_6aaa
-
     ld a, $02
     ld [$dfe2], a
     ld a, $05
@@ -2755,7 +1662,6 @@ Jump_001_6a90:
     ld hl, $6fbb
     ld c, $10
     call Call_001_6f9d
-
 Jump_001_6aaa:
     ret
 
@@ -2764,7 +1670,6 @@ Jump_001_6aab:
     ld a, [$dfd7]
     cp $01
     jp z, Jump_001_6ac5
-
     ld a, $03
     ld [$dfe2], a
     ld a, $05
@@ -2772,7 +1677,6 @@ Jump_001_6aab:
     ld hl, $6fca
     ld c, $10
     call Call_001_6f9d
-
 Jump_001_6ac5:
     ret
 
@@ -2781,15 +1685,13 @@ Jump_001_6ac6:
     ld a, [$dfd7]
     cp $01
     jp z, Jump_001_6ae0
-
     ld a, $04
     ld [$dfe2], a
     ld a, $04
     ld [$dfe9], a
-    ld hl, $6fac
+    ld hl, UnknownData_6fac
     ld c, $10
     call Call_001_6f9d
-
 Jump_001_6ae0:
     ret
 
@@ -2798,7 +1700,6 @@ Jump_001_6ae1:
     ld a, [$dfd7]
     cp $01
     jp z, Jump_001_6afb
-
     ld a, $05
     ld [$dfe2], a
     ld a, $05
@@ -2806,7 +1707,6 @@ Jump_001_6ae1:
     ld hl, $6ffc
     ld c, $10
     call Call_001_6f9d
-
 Jump_001_6afb:
     ret
 
@@ -2815,7 +1715,6 @@ Jump_001_6afc:
     ld a, [$dfd7]
     cp $01
     jp z, Jump_001_6b16
-
     ld a, $06
     ld [$dfe2], a
     ld a, $05
@@ -2823,7 +1722,6 @@ Jump_001_6afc:
     ld hl, $700b
     ld c, $10
     call Call_001_6f9d
-
 Jump_001_6b16:
     ret
 
@@ -2896,7 +1794,6 @@ Jump_001_6b8b:
     ld a, [$dfd7]
     cp $01
     jp z, Jump_001_6bac
-
     ld a, $0c
     ld [$dfe2], a
     ld a, $ff
@@ -2907,7 +1804,6 @@ Jump_001_6b8b:
     ld [$dffc], a
     ld a, $ff
     ld [$dfe6], a
-
 Jump_001_6bac:
     ret
 
@@ -2918,7 +1814,6 @@ Jump_001_6bad:
     ld [$dfe6], a
     cp $07
     jp nz, Jump_001_6f9c
-
     xor a
     ld [$dfe6], a
     ld a, [$dfe9]
@@ -2926,19 +1821,14 @@ Jump_001_6bad:
     ld [$dfe9], a
     cp $06
     jp z, Jump_001_6be6
-
     cp $05
     jp z, Jump_001_6bef
-
     cp $04
     jp z, Jump_001_6bf8
-
     cp $03
     jp z, Jump_001_6c01
-
     cp $02
     jp z, Jump_001_6c0a
-
     cp $01
     xor a
     ld [$dfe2], a
@@ -2988,7 +1878,6 @@ Jump_001_6c17:
     ld [$dfe6], a
     cp $05
     jp nz, Jump_001_6f9c
-
     xor a
     ld [$dfe6], a
     ld a, [$dfe9]
@@ -2996,13 +1885,10 @@ Jump_001_6c17:
     ld [$dfe9], a
     cp $04
     jp z, Jump_001_6c42
-
     cp $03
     jp z, Jump_001_6c4b
-
     cp $02
     jp z, Jump_001_6c54
-
     cp $01
     jp Jump_001_6f8f
 
@@ -3034,7 +1920,6 @@ Jump_001_6c5d:
     ld [$dfe6], a
     cp $03
     jp nz, Jump_001_6f9c
-
     xor a
     ld [$dfe6], a
     ld a, [$dfe9]
@@ -3042,13 +1927,10 @@ Jump_001_6c5d:
     ld [$dfe9], a
     cp $04
     jp z, Jump_001_6c88
-
     cp $03
     jp z, Jump_001_6c91
-
     cp $02
     jp z, Jump_001_6c9a
-
     cp $01
     jp Jump_001_6f8f
 
@@ -3080,7 +1962,6 @@ Jump_001_6ca3:
     ld [$dfe6], a
     cp $05
     jp nz, Jump_001_6f9c
-
     xor a
     ld [$dfe6], a
     ld a, [$dfe9]
@@ -3088,19 +1969,16 @@ Jump_001_6ca3:
     ld [$dfe9], a
     cp $04
     jp z, Jump_001_6cce
-
     cp $03
     jp z, Jump_001_6cd7
-
     cp $02
     jp z, Jump_001_6ce0
-
     cp $01
     jp Jump_001_6f8f
 
 
 Jump_001_6cce:
-    ld hl, $6fac
+    ld hl, UnknownData_6fac
     ld c, $10
     call Call_001_6f9d
     ret
@@ -3126,7 +2004,6 @@ Jump_001_6ce9:
     ld [$dfe6], a
     cp $05
     jp nz, Jump_001_6f9c
-
     xor a
     ld [$dfe6], a
     ld a, [$dfe9]
@@ -3134,13 +2011,10 @@ Jump_001_6ce9:
     ld [$dfe9], a
     cp $04
     jp z, Jump_001_6d14
-
     cp $03
     jp z, Jump_001_6d1d
-
     cp $02
     jp z, Jump_001_6d26
-
     cp $01
     jp Jump_001_6f8f
 
@@ -3172,7 +2046,6 @@ Jump_001_6d2f:
     ld [$dfe6], a
     cp $05
     jp nz, Jump_001_6f9c
-
     xor a
     ld [$dfe6], a
     ld a, [$dfe9]
@@ -3180,13 +2053,10 @@ Jump_001_6d2f:
     ld [$dfe9], a
     cp $04
     jp z, Jump_001_6d5a
-
     cp $03
     jp z, Jump_001_6d63
-
     cp $02
     jp z, Jump_001_6d6c
-
     cp $01
     jp Jump_001_6f8f
 
@@ -3218,7 +2088,6 @@ Jump_001_6d75:
     ld [$dfe6], a
     cp $05
     jp nz, Jump_001_6f9c
-
     xor a
     ld [$dfe6], a
     ld a, [$dfe9]
@@ -3226,10 +2095,8 @@ Jump_001_6d75:
     ld [$dfe9], a
     cp $03
     jp z, Jump_001_6d9b
-
     cp $02
     jp z, Jump_001_6da4
-
     cp $01
     jp Jump_001_6f8f
 
@@ -3254,7 +2121,6 @@ Jump_001_6dad:
     ld [$dfe6], a
     cp $02
     jp nz, Jump_001_6f9c
-
     xor a
     ld [$dfe6], a
     ld a, [$dfe9]
@@ -3262,13 +2128,10 @@ Jump_001_6dad:
     ld [$dfe9], a
     cp $04
     jp z, Jump_001_6dd8
-
     cp $03
     jp z, Jump_001_6de1
-
     cp $02
     jp z, Jump_001_6dea
-
     cp $01
     jp Jump_001_6f8f
 
@@ -3308,20 +2171,17 @@ Jump_001_6df3:
     ld a, [$dfe6]
     cp $00
     jp z, Jump_001_6e3a
-
 Jump_001_6e11:
     ld a, [$dffb]
     inc a
     cp $63
     jp z, Jump_001_6e34
-
     ld [$dffb], a
     ld a, [$dfd0]
     dec a
     ld [$dfd0], a
     cp $00
     jp nz, Jump_001_6e11
-
     ld a, [$dffb]
     ldh [rNR13], a
     ld a, [$dffc]
@@ -3340,14 +2200,12 @@ Jump_001_6e3a:
     dec a
     cp $10
     jp z, Jump_001_6e5d
-
     ld [$dffd], a
     ld a, [$dfd1]
     dec a
     ld [$dfd1], a
     cp $00
     jp nz, Jump_001_6e3a
-
     ld a, [$dffd]
     ldh [rNR13], a
     ld a, [$dffc]
@@ -3376,20 +2234,17 @@ Jump_001_6e66:
     ld a, [$dfe6]
     cp $00
     jp z, Jump_001_6ead
-
 Jump_001_6e84:
     ld a, [$dffb]
     inc a
     cp $89
     jp z, Jump_001_6ea7
-
     ld [$dffb], a
     ld a, [$dfd0]
     dec a
     ld [$dfd0], a
     cp $00
     jp nz, Jump_001_6e84
-
     ld a, [$dffb]
     ldh [rNR13], a
     ld a, [$dffc]
@@ -3408,14 +2263,12 @@ Jump_001_6ead:
     dec a
     cp $1e
     jp z, Jump_001_6ed0
-
     ld [$dffd], a
     ld a, [$dfd1]
     dec a
     ld [$dfd1], a
     cp $00
     jp nz, Jump_001_6ead
-
     ld a, [$dffd]
     ldh [rNR13], a
     ld a, [$dffe]
@@ -3439,20 +2292,17 @@ Jump_001_6ed7:
     ldh [rNR11], a
     ld a, $90
     ldh [rNR12], a
-
 Jump_001_6ee8:
     ld a, [$dffd]
     dec a
     cp $06
     jp z, Jump_001_6f0b
-
     ld [$dffd], a
     ld a, [$dfd1]
     dec a
     ld [$dfd1], a
     cp $00
     jp nz, Jump_001_6ee8
-
     ld a, [$dffd]
     ldh [rNR13], a
     ld a, [$dffe]
@@ -3466,8 +2316,6 @@ Jump_001_6f0b:
     ldh [rNR12], a
     ld [$dfd7], a
     jp Jump_001_6f8f
-
-
     ret
 
 
@@ -3538,7 +2386,7 @@ Jump_001_6f82:
     ldh [rNR12], a
     jp Jump_001_6f8f
 
-
+Func_6f8b::
     call Call_001_752c
     ret
 
@@ -3573,171 +2421,18 @@ Call_001_6f9d:
     ld [c], a
     ret
 
-
-    nop
-    add c
-    ld [hl], d
-    ld c, e
-    rst $00
-    nop
-    add c
-    dec d
-    ld c, e
-    rst $00
-    nop
-    add c
-    rla
-    ld c, e
-    rst $00
-    nop
-    add c
-    ld [hl], d
-    ld a, e
-    rst $00
-    nop
-    add c
-    dec d
-    ld a, e
-    rst $00
-    nop
-    add c
-    rla
-    ld a, e
-    rst $00
-    nop
-    add c
-    jp nz, $c7ac
-
-    nop
-    add c
-    jp nz, $c7be
-
-    nop
-    add c
-    sub l
-    cp [hl]
-    rst $00
-    nop
-    add c
-    ld c, b
-    cp [hl]
-    rst $00
-    nop
-    ld [hl], c
-    ld a, [c]
-    ld e, c
-    add a
-    nop
-    ld a, a
-    ld a, [c]
-    add e
-    add a
-    nop
-    cp a
-    ld a, [c]
-    sbc l
-    add a
-    nop
-    cp a
-    ld a, [c]
-    add e
-    add a
-    nop
-    cp a
-    ld a, [c]
-    sub b
-    add a
-    nop
-    cp a
-    ld a, [c]
-    xor h
-    add a
-    nop
-    add c
-    ld [hl], d
-    sub a
-    rst $00
-    nop
-    add c
-    dec d
-    sub a
-    rst $00
-    nop
-    add c
-    rla
-    sub a
-    rst $00
-    nop
-    add c
-    ld [hl], d
-    and a
-    rst $00
-    nop
-    add c
-    dec d
-    and a
-    rst $00
-    nop
-    add c
-    rla
-    and a
-    rst $00
-    ld a, [de]
-    add c
-    ldh a, [$9d]
-    rst $00
-    add hl, de
-    add e
-    ld [hl], d
-    sbc [hl]
-    rst $00
-    ld [de], a
-    ld b, e
-    ld a, [hl-]
-    sbc a
-    rst $00
-    nop
-    add c
-    ld [hl], d
-    ld a, a
-    rst $00
-    nop
-    add c
-    dec d
-    ld a, a
-    rst $00
-    nop
-    add c
-    ld [hl], d
-    ld a, a
-    rst $00
-    nop
-    add c
-    rla
-    ld a, a
-    rst $00
-    ld a, [de]
-    add c
-    ldh a, [$e9]
-    rst $00
-    add hl, de
-    add e
-    ld [hl], d
-    jp hl
-
-
-    rst $00
-    ld [de], a
-    ld b, e
-    ld a, [hl-]
-    jp hl
-
-
-    rst $00
-    nop
-    rst $30
-    ld d, a
-    add b
+UnknownData_6fac::
+db $00,$81,$72,$4B,$C7,$00,$81,$15,$4B,$C7,$00,$81,$17,$4B,$C7,$00
+db $81,$72,$7B,$C7,$00,$81,$15,$7B,$C7,$00,$81,$17,$7B,$C7,$00,$81
+db $C2,$AC,$C7,$00,$81,$C2,$BE,$C7,$00,$81,$95,$BE,$C7,$00,$81,$48
+db $BE,$C7,$00,$71,$F2,$59,$87,$00,$7F,$F2,$83,$87,$00,$BF,$F2,$9D
+db $87,$00,$BF,$F2,$83,$87,$00,$BF,$F2,$90,$87,$00,$BF,$F2,$AC,$87
+db $00,$81,$72,$97,$C7,$00,$81,$15,$97,$C7,$00,$81,$17,$97,$C7,$00
+db $81,$72,$A7,$C7,$00,$81,$15,$A7,$C7,$00,$81,$17,$A7,$C7,$1A,$81
+db $F0,$9D,$C7,$19,$83,$72,$9E,$C7,$12,$43,$3A,$9F,$C7,$00,$81,$72
+db $7F,$C7,$00,$81,$15,$7F,$C7,$00,$81,$72,$7F,$C7,$00,$81,$17,$7F
+db $C7,$1A,$81,$F0,$E9,$C7,$19,$83,$72,$E9,$C7,$12,$43,$3A,$E9,$C7
+db $00,$F7,$57,$80
 
 Call_001_7050:
     ld a, [$dfe1]

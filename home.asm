@@ -2,15 +2,11 @@ SECTION "Home", ROM0[$0]
 ;only rst_00 is used/referenced
 RST_00::
     jp Start
-    rst $38
-    rst $38
-    rst $38
-    rst $38
-    rst $38
 
-REPT 56
+REPT 61
     db $FF
 ENDR
+
 SECTION "Header Functions", ROM0[$40]
 VBlankInterrupt::
     jp MainLoop
