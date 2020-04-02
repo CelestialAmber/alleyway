@@ -49,7 +49,7 @@ Start:
     ld [hl-], a
     dec b
     jr nz, .loop2
-    call Call_000_0381
+    call LoadGraphics1
     call Call_000_0358
     call Call_000_035d
     ld c, $80
@@ -194,7 +194,7 @@ _LCDCInterrupt:
     push bc
     push de
     push hl
-    call Call_000_0b67
+    call ScrollBlockRows
     ldh a, [rIF]
     and $fd
     ldh [rIF], a
@@ -247,7 +247,7 @@ Call_000_02a1:
     cp $00
     jr z, jr_000_02b6
     ld de, $c901
-    call Call_000_02c1
+    call CopyTilemap
     xor a
     ld [$c900], a
     ld [$c901], a
@@ -256,7 +256,7 @@ jr_000_02b6:
     ret
 
 
-Func_02c1_Loop:
+CopyTilemapLoop:
     inc de
     ld h, a
     ld a, [de]
@@ -265,10 +265,10 @@ Func_02c1_Loop:
     ld a, [de]
     inc de
     call Call_000_02c7
-Call_000_02c1:
+CopyTilemap:
     ld a, [de]
     cp $00
-    jr nz, Func_02c1_Loop
+    jr nz, CopyTilemapLoop
     ret
 
 
@@ -368,7 +368,7 @@ Func0378:
     ld hl, $c888
     jr Func_036c_Loop
 
-Call_000_0381:
+LoadGraphics1:
     ld hl, TitleGraphics
     ld de, $9000
     ld bc, $0800
@@ -684,8 +684,8 @@ TitleScreenLoop::
     ldh [$ff9d], a
     call Call_000_0358
     call Call_000_036c
-    ld de, $41cd
-    call Call_000_02c1
+    ld de, TitleScreenTilemap
+    call CopyTilemap
     call Func_48e4
     ld a, $e4
     ldh [rBGP], a
@@ -706,7 +706,7 @@ TitleScreenLoop::
     push af
     call z, DisableDemoMode
     pop af
-    call z, Func_63e8
+    call z, SetDFE8
     pop af
     call nz, EnableDemoMode
     ld a, $03
@@ -907,7 +907,7 @@ Call_000_074c:
     sla a
     ld c, a
     ld b, $00
-    ld hl, $4075
+    ld hl, PointerTable_4075
     add hl, bc
     ld a, [hl+]
     ld h, [hl]
@@ -1564,7 +1564,7 @@ jr_000_0b65:
     ret
 
 
-Call_000_0b67:
+ScrollBlockRows:
     ldh a, [$ffac]
     ld c, a
     inc a
@@ -1741,7 +1741,6 @@ Call_000_0c5b:
     ld a, [c]
     sbc [hl]
     ret nc
-
     ld a, [hl]
     ld [c], a
     dec c
@@ -1761,18 +1760,14 @@ Call_000_0c71:
     ldh a, [$ffa7]
     sbc [hl]
     ret nc
-
     ld a, [wLives]
     cp $09
     jr nc, jr_000_0c8c
-
     inc a
     ld [wLives], a
     call Func63ae
-
 jr_000_0c8c:
     call Func_47c7
-
 Call_000_0c8f:
     ldh a, [$ffa5]
     sla a
@@ -2349,7 +2344,7 @@ jr_000_0fbd:
     and $07
     ld b, $00
     ld c, a
-    ld hl, $100b
+    ld hl, UnknownData_100b
     add hl, bc
     ld a, [hl]
     pop bc
@@ -2390,14 +2385,8 @@ jr_000_1004:
     ldh [$ffbb], a
     ret
 
-
-    ld b, $08
-    ld a, [bc]
-    ld b, $08
-    ld a, [bc]
-    ld [$0a0a], sp
-    inc c
-    ld c, $0a
+UnknownData_100b::
+db $06,$08,$0A,$06,$08,$0A,$08,$0A,$0A,$0C,$0E,$0A
 
 Call_000_1017:
     inc c
@@ -3028,7 +3017,7 @@ jr_000_1a6c:
 
 Call_000_1a97:
     call Call_000_023d
-    ld hl, $1aaf
+    ld hl, UnknownData_1aaf
     ld de, $c901
     ld b, $17
 jr_000_1aa2:
@@ -3041,6 +3030,7 @@ jr_000_1aa2:
     ldh [$ffa3], a
     jp Call_000_0221
 
+UnknownData_1aaf::
 db $9B,$42,$0C,$C4,$C5,$C6,$C7,$8A,$C8,$FF
 ;1ab9
 db "BONUS"
@@ -3071,10 +3061,9 @@ db $69,$04,$FF,$FF,$FF,$FF,$00
 
 Call_000_1af5:
     call Call_000_023d
-    ld hl, UnknownData_1b0d
+    ld hl, TryAgainText
     ld de, $c901
     ld b, $0e
-
 jr_000_1b00:
     ld a, [hl+]
     ld [de], a
@@ -3085,8 +3074,8 @@ jr_000_1b00:
     ldh [$ffa3], a
     jp Call_000_0221
 
-UnknownData_1b0d::
-db $99,$C3,$0A,$9D,$9B,$A2,$FF,$8A,$90,$8A,$92,$97,$1F,$00
+TryAgainText::
+db $99,$C3,$0A,"TRY AGAIN!",$00
 
 Call_000_1b1b:
     call Call_000_023d

@@ -4,20 +4,14 @@
 
 SECTION "ROM Bank $001", ROMX[$4000], BANK[$1]
 
-INCBIN "data/bank1StartData.bin"
+INCLUDE "data/bank1StartData.asm"
 
 TitleScreenTilemap::
 INCBIN "data/title_screen_tilemap.bin"
 
-;bottom tilemap data(text)
-db "TOP SCORE"
-db $99,$C3,$0E
-db "PUSH START KEY"
-db $9A,$04,$0C
-db "©1989 "
-db $18,$19,$1A,$1B,$1C,$1D ;Nintendo (tilemap)
-db $00,$98,$43,$0A
-;end tilemap data?
+;offset 42b3
+EndingTilemap::
+db $98,$43,$0A
 db "NICE PLAY!"
 db $98,$84,$07,$44,$45,$FF,$FF,$FF,$44
 db $45,$98,$A3,$09,$44,$46,$20,$21,$22,$23,$24,$44,$45,$98,$C2,$0B
@@ -26,7 +20,10 @@ db $2C,$2D,$2E,$2F,$30,$31,$32,$44,$45,$99,$02,$0B,$44,$45,$33,$A5
 db $34,$35,$A5,$36,$37,$44,$45,$99,$22,$0B,$44,$45,$38,$39,$3A,$3B
 db $3C,$3D,$3E,$44,$45,$99,$43,$09,$44,$45,$3F,$40,$41,$42,$43,$44
 db $45,$99,$63,$09,$47,$48,$49,$4A,$4B,$4C,$4D,$4E,$4F,$99,$83,$09
-db $50,$51,$52,$53,$54,$55,$56,$57,$58,$00,$00,$00,$00,$00,$00,$00
+db $50,$51,$52,$53,$54,$55,$56,$57,$58
+
+
+db $00,$00,$00,$00,$00,$00,$00
 db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
@@ -186,25 +183,8 @@ Call_001_44cf:
     ld [wMarioXPos], a
     ret
 
-
-    db $fd
-    db $fd
-    db $fd
-    cp $fe
-    cp $ff
-    rst $38
-    rst $38
-    nop
-    rst $38
-    nop
-    nop
-    ld bc, $0100
-    ld bc, $0201
-    ld [bc], a
-    ld [bc], a
-    inc bc
-    inc bc
-    inc bc
+;0x44f5
+db $FD,$FD,$FD,$FE,$FE,$FE,$FF,$FF,$FF,$00,$FF,$00,$00,$01,$00,$01,$01,$01,$02,$02,$02,$03,$03,$03
 
 Call_001_450d:
     call Call_000_118f
@@ -253,17 +233,7 @@ Call_001_4533:
     ld [$c80a], a
     ret
 
-
-    nop
-    ld bc, $0002
-    inc b
-    nop
-    nop
-    inc bc
-    nop
-    ld [bc], a
-    inc bc
-    ld [bc], a
+db $00,$01,$02,$00,$04,$00,$00,$03,$00,$02,$03,$02
 
 
 Func455d::
@@ -298,34 +268,10 @@ jr_001_4570:
     jp Func0378
 
 
-    rlca
-    rlca
-    rlca
-    rlca
-    rlca
-    rlca
-    rlca
-    rlca
-    ld [$0808], sp
-    ld [$0808], sp
-    ld [$0808], sp
-    ld [$0808], sp
-    add hl, bc
-    add hl, bc
-    add hl, bc
-    add hl, bc
-    add hl, bc
-    add hl, bc
-    add hl, bc
-    add hl, bc
-    add hl, bc
-    add hl, bc
-    add hl, bc
-    add hl, bc
-    add hl, bc
-    add hl, bc
-    add hl, bc
-    add hl, bc
+;4599
+db $07,$07,$07,$07,$07,$07,$07,$07,$08,$08,$08,$08,$08,$08,$08,$08
+db $08,$08,$08,$08,$09,$09,$09,$09,$09,$09,$09,$09,$09,$09,$09,$09
+db $09,$09,$09,$09
 
 
 Func45bd:
@@ -351,36 +297,9 @@ jr_001_45c1:
     jr c, jr_001_45c1
     jp Func0378
 
-
-    ld a, [bc]
-    ld a, [bc]
-    ld a, [bc]
-    ld a, [bc]
-    ld a, [bc]
-    ld a, [bc]
-    ld a, [bc]
-    ld a, [bc]
-    dec bc
-    dec bc
-    dec bc
-    dec bc
-    dec bc
-    dec bc
-    inc c
-    inc c
-    inc c
-    inc c
-    inc c
-    inc c
-    dec bc
-    dec bc
-    dec bc
-    dec bc
-    dec bc
-    dec bc
-    dec bc
-    dec bc
-    ld a, [bc]
+;45e6
+db $0A,$0A,$0A,$0A,$0A,$0A,$0A,$0A,$0B,$0B,$0B,$0B,$0B,$0B,$0C,$0C
+db $0C,$0C,$0C,$0C,$0B,$0B,$0B,$0B,$0B,$0B,$0B,$0B,$0A
 
 
 Func_4603::
@@ -410,7 +329,7 @@ Func_4603::
     ld a, $e4
     call Call_000_08ca
     ld de, UnknownData_4a3c
-    call Call_000_02c1
+    call CopyTilemap
     ldh a, [hGameStateIndex]
     cp $03
     jr z, jr_001_4660
@@ -420,8 +339,8 @@ Func_4603::
     ld a, [wCurrentStage]
     cp $00
     jr nz, jr_001_4660
-    ld de, $42b3
-    call Call_000_02c1
+    ld de, EndingTilemap
+    call CopyTilemap
     ld a, $00
     call Call_000_08ca
 jr_001_4660:
@@ -1028,8 +947,8 @@ SplashGraphics::
 PaddleLeftGraphics::
     INCBIN "gfx/paddle_left.2bpp"
 
-DuplicateMarioTiles::
-    INCBIN "gfx/ending_mario_duplicate_tiles.2bpp"
+BadEndingMarioTiles::
+    INCBIN "gfx/ending_mario_bad_end_tiles.2bpp"
 
 ds $590
 ;offset 5375
@@ -1097,7 +1016,7 @@ ds $270
 
 Func_6375::
     ld a, $80
-    ldh [rNR52], a
+    ldh [rNR52], a ;turn all sound on
     ld a, $77
     ldh [rNR50], a
     ld a, $ff
@@ -1180,42 +1099,42 @@ jr_001_63e4:
     ld [$dfe1], a
     ret
 
-Func_63e8:
+SetDFE8:
     ld a, $01
-    jr jr_001_6416
+    jr setvalueDFE8
 Call_001_63ec:
     ld a, $02
-    jr jr_001_6416
+    jr setvalueDFE8
 Func63f0:
     ld a, $03
-    jr jr_001_6416
+    jr setvalueDFE8
 Func63f4:
     ld a, $04
-    jr jr_001_6416
+    jr setvalueDFE8
 Func63f8:
     ld a, $05
-    jr jr_001_6416
+    jr setvalueDFE8
 Func63fc:
     ld a, $06
-    jr jr_001_6416
+    jr setvalueDFE8
 Func6400:
     ld a, $07
-    jr jr_001_6416
+    jr setvalueDFE8
 Func6404:
     ld a, $08
-    jr jr_001_6416
+    jr setvalueDFE8
 Func6408:
     ld a, $09
-    jr jr_001_6416
+    jr setvalueDFE8
 Func640c:
     ld a, $0a
-    jr jr_001_6416
+    jr setvalueDFE8
 Func6410:
     ld a, $0b
-    jr jr_001_6416
+    jr setvalueDFE8
 Func6414:
     ld a, $0c
-jr_001_6416:
+setvalueDFE8:
     ld [$dfe8], a
     ret
 
@@ -2548,7 +2467,7 @@ Jump_001_70ae:
 
     ld a, [$dfe4]
     cp $00
-    jp nz, Jump_001_738c
+    jp nz, Call_001_738c
 
     ld a, [$dfe5]
     cp $00
@@ -2570,12 +2489,12 @@ Jump_001_70fe:
     ld a, $60
     ld [$dfd3], a
     ld [$dfd4], a
-    ld hl, $75e3
+    ld hl, SoundData_75e3
     ld a, h
     ld [$dff0], a
     ld a, l
     ld [$dff1], a
-    ld hl, $7652
+    ld hl, SoundData_7652
     ld a, h
     ld [$dff2], a
     ld a, l
@@ -2596,12 +2515,12 @@ Jump_001_713a:
     ld [$dfeb], a
     ld [$dfed], a
     ld [$dff8], a
-    ld hl, $76c3
+    ld hl, SoundData_76c3
     ld a, h
     ld [$dff0], a
     ld a, l
     ld [$dff1], a
-    ld hl, $76d9
+    ld hl, SoundData_76d9
     ld a, h
     ld [$dff2], a
     ld a, l
@@ -2624,12 +2543,12 @@ Jump_001_716f:
     ld a, $60
     ld [$dfd3], a
     ld [$dfd4], a
-    ld hl, $76f0
+    ld hl, SoundData_76f0
     ld a, h
     ld [$dff0], a
     ld a, l
     ld [$dff1], a
-    ld hl, $7712
+    ld hl, SoundData_7712
     ld a, h
     ld [$dff2], a
     ld a, l
@@ -2648,12 +2567,12 @@ Jump_001_71ad:
     ld [$dfeb], a
     ld [$dfed], a
     ld [$dff8], a
-    ld hl, $7733
+    ld hl, SoundData_7733
     ld a, h
     ld [$dff0], a
     ld a, l
     ld [$dff1], a
-    ld hl, $7738
+    ld hl, SoundData_7738
     ld a, h
     ld [$dff2], a
     ld a, l
@@ -2674,12 +2593,12 @@ Jump_001_71de:
     ld [$dfeb], a
     ld [$dfed], a
     ld [$dff8], a
-    ld hl, $773b
+    ld hl, SoundData_773b
     ld a, h
     ld [$dff0], a
     ld a, l
     ld [$dff1], a
-    ld hl, $7750
+    ld hl, SoundData_7750
     ld a, h
     ld [$dff2], a
     ld a, l
@@ -2702,12 +2621,12 @@ Jump_001_7213:
     ld a, $28
     ld [$dfd3], a
     ld [$dfd4], a
-    ld hl, $7765
+    ld hl, SoundData_7765
     ld a, h
     ld [$dff0], a
     ld a, l
     ld [$dff1], a
-    ld hl, $779b
+    ld hl, SoundData_779b
     ld a, h
     ld [$dff2], a
     ld a, l
@@ -2730,12 +2649,12 @@ Jump_001_7251:
     ld a, $20
     ld [$dfd3], a
     ld [$dfd4], a
-    ld hl, $77d7
+    ld hl, SoundData_77d7
     ld a, h
     ld [$dff0], a
     ld a, l
     ld [$dff1], a
-    ld hl, $780d
+    ld hl, SoundData_780d
     ld a, h
     ld [$dff2], a
     ld a, l
@@ -2754,12 +2673,12 @@ Jump_001_728f:
     ld [$dfeb], a
     ld [$dfed], a
     ld [$dff8], a
-    ld hl, $7849
+    ld hl, SoundData_7849
     ld a, h
     ld [$dff0], a
     ld a, l
     ld [$dff1], a
-    ld hl, $785c
+    ld hl, SoundData_785c
     ld a, h
     ld [$dff2], a
     ld a, l
@@ -2780,12 +2699,12 @@ Jump_001_72c0:
     ld [$dfeb], a
     ld [$dfed], a
     ld [$dff8], a
-    ld hl, $7875
+    ld hl, SoundData_7875
     ld a, h
     ld [$dff0], a
     ld a, l
     ld [$dff1], a
-    ld hl, $7887
+    ld hl, SoundData_7887
     ld a, h
     ld [$dff2], a
     ld a, l
@@ -2806,12 +2725,12 @@ Jump_001_72f5:
     ld [$dfeb], a
     ld [$dfed], a
     ld [$dff8], a
-    ld hl, $789c
+    ld hl, SoundData_789c
     ld a, h
     ld [$dff0], a
     ld a, l
     ld [$dff1], a
-    ld hl, $78d6
+    ld hl, SoundData_78d6
     ld a, h
     ld [$dff2], a
     ld a, l
@@ -2830,12 +2749,12 @@ Jump_001_732a:
     ld [$dfeb], a
     ld [$dfed], a
     ld [$dff8], a
-    ld hl, $790f
+    ld hl, SoundData_790f
     ld a, h
     ld [$dff0], a
     ld a, l
     ld [$dff1], a
-    ld hl, $7919
+    ld hl, SoundData_7919
     ld a, h
     ld [$dff2], a
     ld a, l
@@ -2854,12 +2773,12 @@ Jump_001_735b:
     ld [$dfeb], a
     ld [$dfed], a
     ld [$dff8], a
-    ld hl, $791f
+    ld hl, SoundData_791f
     ld a, h
     ld [$dff0], a
     ld a, l
     ld [$dff1], a
-    ld hl, $7988
+    ld hl, SoundData_7988
     ld a, h
     ld [$dff2], a
     ld a, l
@@ -2869,7 +2788,6 @@ Jump_001_735b:
 
 
 Call_001_738c:
-Jump_001_738c:
     ld a, [$dfeb]
     dec a
     ld [$dfeb], a
@@ -2906,13 +2824,13 @@ Jump_001_73ba:
     ldh [rNR22], a
     ld a, [$dff5]
     push hl
-    ld hl, $7574
+    ld hl, SoundData_7574
     ld d, $00
     ld e, a
     add hl, de
     ld a, [hl]
     ldh [rNR23], a
-    ld hl, $7531
+    ld hl, SoundData_7531
     add hl, de
     ld a, [hl]
     ldh [rNR24], a
@@ -2974,13 +2892,13 @@ Jump_001_741e:
     ld a, $20
     ldh [rNR32], a
     ld a, [$dff6]
-    ld hl, $7574
+    ld hl, SoundData_7574
     ld d, $00
     ld e, a
     add hl, de
     ld a, [hl]
     ldh [rNR33], a
-    ld hl, $7531
+    ld hl, SoundData_7531
     add hl, de
     ld a, [hl]
     ldh [rNR34], a
@@ -3004,7 +2922,7 @@ jr_001_745e:
 
 
 Call_001_745f:
-    ld hl, $7a6f
+    ld hl, SoundData_7a6f
     ld c, $30
 
 Jump_001_7464:
@@ -3025,7 +2943,7 @@ Jump_001_7464:
 Jump_001_7478:
     push hl
     and $7f
-    ld hl, $75b7
+    ld hl, SoundData_75b7
     ld d, $00
     ld e, a
     add hl, de
@@ -3039,7 +2957,7 @@ Jump_001_7478:
 Jump_001_748d:
     push hl
     and $7f
-    ld hl, $75b7
+    ld hl, SoundData_75b7
     ld d, $00
     ld e, a
     add hl, de
@@ -3158,93 +3076,11 @@ Call_001_752c:
     xor a
     ld [$dff4], a
     ret
-;part of this is sound data (music and sfx)
-;changing this data seems to only affect sound
-db $00, $c0, $80, $80, $81, $81, $81, $82, $82, $82, $83, $83, $83, $83, $84, $84
-db $84, $84, $84, $85, $85, $85, $85, $85, $85, $85, $86, $86, $86, $86, $86, $86
-db $86, $86, $86, $86, $86, $86, $87, $87, $87, $87, $87, $87, $87, $87, $87, $87
-db $87, $87, $87, $87, $87, $87, $87, $87, $87, $87, $87, $87, $87, $87, $87, $87
-db $87, $87, $87, $00, $00, $2c, $9d, $07, $6b, $c9, $23, $77, $c7, $12, $58, $9b
-db $da, $16, $4f, $83, $b5, $e5, $11, $3b, $63, $88, $ac, $ce, $ed, $0b, $27, $42
-db $5b, $72, $89, $9e, $b2, $c4, $d6, $e7, $f7, $06, $14, $21, $2d, $39, $44, $4f
-db $59, $62, $6b, $73, $7b, $83, $8a, $90, $97, $9d, $a2, $a7, $ac, $b1, $b6, $ba
-db $be, $c1, $c5, $c8, $cb, $ce, $04, $08, $10, $20, $40, $0c, $18, $30, $05, $06
-db $0b, $0a, $05, $0a, $14, $28, $50, $0f, $1e, $3c, $07, $06, $02, $01, $03, $06
-db $0c, $18, $30, $09, $12, $24, $04, $04, $0b, $0a, $06, $0c, $18, $30, $60, $12
-db $24, $48, $99, $1e, $01, $9b, $1e, $99, $1e, $1f, $01, $20, $01, $9e, $21, $9a
-db $01, $27, $99, $25, $23, $01, $27, $99, $01, $27, $01, $27, $9a, $25, $23, $9a
-db $01, $28, $99, $25, $23, $01, $28, $99, $01, $28, $01, $28, $9a, $25, $23, $9a
-db $01, $27, $99, $25, $23, $01, $27, $99, $01, $9e, $27, $99, $25, $23, $25, $27
-db $9a, $01, $28, $99, $25, $23, $25, $27, $99, $01, $28, $9a, $01, $99, $2b, $2c
-db $9a, $28, $9a, $01, $27, $99, $25, $23, $25, $27, $99, $01, $9e, $27, $99, $2b
-db $9a, $2c, $99, $28, $99, $28, $01, $25, $23, $01, $20, $23, $01, $99, $28, $01
-db $00, $99, $1e, $01, $9b, $1e, $99, $1e, $1f, $01, $20, $01, $9e, $21, $99, $23
-db $01, $2d, $01, $23, $01, $2f, $2d, $23, $2d, $2f, $2d, $23, $01, $2f, $01, $1c
-db $01, $2c, $01, $1c, $01, $2c, $01, $1c, $2c, $28, $2c, $1c, $01, $28, $01, $99
-db $23, $01, $2d, $01, $23, $01, $2f, $2d, $23, $2d, $2f, $01, $23, $01, $2f, $2d
-db $1c, $01, $2c, $01, $1c, $01, $28, $01, $1c, $2c, $28, $01, $1c, $01, $28, $01
-db $99, $23, $01, $2d, $01, $23, $01, $2f, $2d, $23, $2d, $2f, $01, $23, $2d, $2f
-db $01, $2c, $01, $28, $01, $1c, $01, $28, $01, $2c, $01, $20, $01, $1c, $01, $82
-db $01, $00, $81, $2a, $26, $21, $82, $2b, $28, $81, $21, $81, $2a, $26, $82, $21
-db $81, $28, $01, $28, $01, $87, $2a, $00, $81, $1a, $21, $82, $26, $81, $1f, $23
-db $82, $26, $81, $21, $2a, $26, $2a, $25, $01, $25, $01, $83, $26, $01, $00, $9a
-db $01, $27, $99, $25, $23, $25, $27, $99, $01, $9e, $27, $99, $2b, $9a, $2c, $99
-db $28, $99, $28, $01, $25, $23, $01, $20, $23, $01, $99, $28, $01, $01, $01, $1c
-db $00, $99, $23, $01, $2d, $01, $23, $01, $2f, $2d, $23, $2d, $2f, $01, $23, $2d
-db $2f, $01, $2c, $01, $28, $01, $1c, $01, $28, $01, $28, $01, $01, $01, $96, $01
-db $10, $00, $81, $2a, $2d, $32, $00, $86, $01, $00, $81, $1e, $1a, $15, $1f, $1c
-db $15, $21, $1e, $81, $26, $25, $23, $25, $01, $21, $23, $25, $87, $2a, $00, $82
-db $1a, $81, $26, $86, $1a, $82, $26, $82, $21, $81, $2d, $86, $21, $82, $2d, $83
-db $26, $82, $01, $00, $8c, $2a, $26, $21, $01, $2b, $28, $21, $01, $2a, $26, $21
-db $01, $28, $25, $21, $01, $2a, $26, $21, $01, $2b, $28, $21, $01, $2a, $26, $21
-db $01, $28, $25, $21, $01, $8d, $1f, $23, $26, $8e, $1f, $8e, $23, $8d, $26, $8d
-db $21, $25, $28, $8e, $21, $8e, $26, $8d, $28, $7f, $8c, $1a, $01, $1a, $01, $1f
-db $01, $1f, $01, $1a, $01, $1a, $01, $21, $01, $21, $01, $1a, $01, $1a, $01, $1f
-db $01, $1f, $01, $1a, $01, $1a, $01, $21, $01, $21, $01, $8d, $1f, $2b, $2b, $1f
-db $8c, $1f, $01, $2b, $01, $8d, $2b, $1f, $8d, $21, $2d, $2d, $21, $8c, $21, $01
-db $2d, $01, $8d, $2d, $21, $7f, $80, $2a, $26, $21, $01, $2b, $28, $21, $01, $2a
-db $26, $21, $01, $28, $25, $21, $01, $2a, $26, $21, $01, $2b, $28, $21, $01, $2a
-db $26, $21, $01, $28, $25, $21, $01, $81, $1f, $23, $26, $82, $1f, $82, $23, $81
-db $26, $81, $21, $25, $28, $82, $21, $82, $26, $81, $28, $7f, $80, $1a, $01, $1a
-db $01, $1f, $01, $1f, $01, $1a, $01, $1a, $01, $21, $01, $21, $01, $1a, $01, $1a
-db $01, $1f, $01, $1f, $01, $1a, $01, $1a, $01, $21, $01, $21, $01, $81, $1f, $2b
-db $2b, $1f, $80, $1f, $01, $2b, $01, $81, $2b, $1f, $81, $21, $2d, $2d, $21, $80
-db $21, $01, $2d, $01, $81, $2d, $21, $7f, $91, $2a, $8c, $2a, $91, $28, $8c, $28
-db $91, $21, $8c, $21, $91, $2b, $8c, $2b, $93, $2d, $00, $94, $21, $26, $95, $2a
-db $94, $21, $28, $95, $2b, $94, $21, $26, $95, $2a, $94, $21, $28, $95, $2b, $92
-db $2a, $92, $01, $00, $83, $26, $81, $01, $21, $23, $25, $82, $26, $81, $2a, $28
-db $01, $86, $25, $87, $26, $00, $82, $1a, $81, $26, $1a, $01, $1a, $82, $26, $82
-db $21, $81, $23, $25, $01, $1a, $01, $1a, $87, $1a, $00, $83, $26, $81, $01, $21
-db $23, $25, $82, $26, $81, $2a, $28, $01, $86, $25, $81, $1f, $82, $23, $81, $26
-db $01, $2b, $01, $2b, $81, $21, $82, $25, $81, $28, $01, $2d, $01, $2d, $81, $1f
-db $82, $23, $81, $26, $01, $2b, $01, $2b, $81, $21, $82, $25, $81, $28, $01, $2d
-db $01, $2d, $83, $1e, $00, $82, $1a, $81, $26, $1a, $01, $1a, $82, $26, $82, $21
-db $81, $23, $25, $01, $1a, $01, $1a, $82, $1f, $81, $2b, $1f, $01, $23, $01, $26
-db $82, $21, $81, $2d, $21, $01, $28, $01, $2d, $82, $1f, $81, $2b, $1f, $01, $23
-db $01, $26, $82, $21, $81, $2d, $21, $01, $28, $01, $2d, $83, $26, $00, $97, $14
-db $11, $0f, $17, $13, $11, $0f, $17, $00, $96, $10, $10, $0e, $0e, $00, $a5, $2a
-db $26, $21, $2b, $28, $21, $2d, $2a, $a5, $2a, $26, $21, $2b, $28, $21, $2d, $2a
-db $a5, $1f, $23, $26, $a6, $2b, $2a, $a5, $28, $aa, $26, $a6, $25, $26, $a5, $28
-db $a5, $2a, $26, $21, $2b, $28, $21, $2d, $2a, $a5, $2a, $26, $21, $2b, $28, $21
-db $2d, $2a, $a5, $1f, $23, $26, $a6, $2b, $2a, $a5, $28, $aa, $26, $a6, $25, $26
-db $a5, $28, $a5, $1f, $23, $26, $a7, $2b, $a5, $01, $a5, $21, $25, $28, $a7, $2d
-db $a5, $01, $a5, $1f, $23, $26, $a7, $2b, $a5, $01, $a5, $21, $25, $28, $2d, $01
-db $aa, $2d, $a7, $2a, $a7, $01, $00, $a4, $1a, $01, $1a, $01, $1a, $01, $1a, $01
-db $a4, $1a, $01, $1a, $01, $1a, $01, $1a, $01, $a4, $1a, $01, $1a, $01, $1a, $01
-db $1a, $01, $a4, $1a, $01, $1a, $01, $1a, $01, $1a, $01, $a4, $1f, $01, $1f, $01
-db $1f, $01, $1f, $01, $a4, $1f, $01, $1f, $01, $1f, $01, $1f, $01, $a4, $21, $01
-db $21, $01, $21, $01, $21, $01, $a4, $21, $01, $21, $01, $21, $01, $21, $01, $a4
-db $1a, $01, $1a, $01, $1a, $01, $1a, $01, $a4, $1a, $01, $1a, $01, $1a, $01, $1a
-db $01, $a4, $1a, $01, $1a, $01, $1a, $01, $1a, $01, $a4, $1a, $01, $1a, $01, $1a
-db $01, $1a, $01, $a4, $1f, $01, $1f, $01, $1f, $01, $1f, $01, $a4, $1f, $01, $1f
-db $01, $1f, $01, $1f, $01, $a4, $21, $01, $21, $01, $21, $01, $21, $01, $a4, $21
-db $01, $21, $01, $21, $01, $21, $01, $a4, $1f, $23, $26, $2b, $a4, $1f, $23, $26
-db $2b, $a4, $1f, $23, $26, $2b, $a4, $1f, $23, $26, $2b, $a4, $21, $25, $28, $2d
-db $a4, $21, $25, $28, $2d, $a4, $21, $25, $28, $2d, $a4, $21, $25, $28, $2d, $a4
-db $1f, $23, $26, $2b, $a4, $1f, $23, $26, $2b, $a4, $1f, $23, $26, $2b, $a4, $1f
-db $23, $26, $2b, $a4, $21, $25, $28, $2d, $a4, $21, $25, $28, $2d, $a4, $21, $25
-db $28, $2d, $a4, $21, $25, $28, $2d, $aa, $26, $a7, $01, $a5, $01, $00, $89, $ab
-db $bb, $bb, $bb, $bb, $98, $54, $21, $00, $00, $00, $00, $00, $00, $00
+
+
+
+INCLUDE "audio/sound_data_bank1_0.asm"
+
 
 
 REPT $571
