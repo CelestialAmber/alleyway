@@ -3,7 +3,7 @@
 ;40: normal horizontal scroll
 ;00: no movement
 ;some levels have different widths
-;format: stage propetries value, stage data
+;format: stage properties value, stage data
 StageDataTable::
     dbw $00, StageData1
     dbw $40, StageData1
